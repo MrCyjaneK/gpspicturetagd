@@ -1,0 +1,15 @@
+/rpms/
+/dist/
+*.pro.user
+build-*
+*.tmp
+.gocache
+*.list
+.gopath
+*.o
+ui/sfos/gpspicturetagd/gpspicturetagd
+moc_*.cpp
+gpspicturetagd-daemon
+.DS_Store
+Makefile
+ui/sfos/gpspicturetagd/icons

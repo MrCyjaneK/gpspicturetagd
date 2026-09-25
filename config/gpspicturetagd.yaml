@@ -1,0 +1,34 @@
+# gpspicturetagd — geotag JPEGs under Pictures once GPS has any usable lock.
+#
+# Load order (later files override earlier keys):
+#   1. compiled defaults (this file)
+#   2. /usr/share/gpspicturetagd/config.yaml
+#   3. /etc/gpspicturetagd/config.yaml
+#   4. ~/.config/gpspicturetagd/config.yaml   (created on first run)
+#
+# Pass -config PATH to load that file only (after defaults).
+
+# Directory to watch recursively for new JPEGs.
+dir: ~/Pictures
+
+# Do not touch these immediate children of dir (stock wallpapers, screenshots).
+skip_dirs:
+  - Default
+  - Screenshots
+
+# Only tag JPEGs newer than this. Older photos are left untouched.
+max_age: 2h
+
+# How often the user systemd timer starts a scan. The process exits afterward.
+scan_every: 5m
+
+# How long to keep GPS on while waiting for a lock. Then GPS is released
+# until the next scan, even if some files are still untagged.
+gps_timeout: 15m
+
+# Desktop notification after each scan:
+#   change  — when files were tagged, or a scan/GPS/write failed
+#   always  — every scan, even if nothing needed GPS
+#   error   — only when scan, GPS, or a write failed
+#   never   — off
+notify: change

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Name=GPS Picture Tag
+Comment=Geotag camera pictures when GPS gets a lock
+Icon=gpspicturetagd
+Exec=gpspicturetagd
+
+[X-Sailjail]
+Sandboxing=Disabled

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 86 86">
+  <defs>
+    <linearGradient id="sfos-grad" gradientUnits="userSpaceOnUse" x1="0.7169" y1="85.2831" x2="85.2831" y2="0.7169">
+      <stop offset="0" stop-color="#0B4F8A"/>
+      <stop offset="1" stop-color="#3EC6E8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Official Sailfish Apps icon template path (86px, 0.3px inset) -->
+  <path fill="url(#sfos-grad)" d="M84.277,0.3H43C19.417,0.3,0.3,19.418,0.3,43v41.277c0,0.786,0.637,1.423,1.423,1.423H43
+    c23.583,0,42.7-19.118,42.7-42.7V1.723C85.7,0.937,85.063,0.3,84.277,0.3z"/>
+
+  <!-- Location pin (icon-m-location), Maps orange + cream hole -->
+  <path fill="#FF7636" d="M43,74 L27.412,47 A18,18 0 1 1 58.588,47 Z"/>
+  <circle fill="#FFD4A0" cx="43" cy="38" r="8"/>
+</svg>
