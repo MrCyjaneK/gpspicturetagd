@@ -1,0 +1,377 @@
+version: "2"
+
+linters:
+  enable:
+    # ===========================================================================
+    # CORRECTNESS AND SAFETY
+    # ===========================================================================
+
+    # Core static analysis: SA* and S* checks.
+    - staticcheck
+    # go vet passes; shadow analyser enabled in settings.
+    - govet
+    # Unchecked error returns.
+    - errcheck
+    # Assignments to variables never read.
+    - ineffassign
+    # Returning nil when error != nil is checked.
+    - nilerr
+    # Simultaneous nil error + invalid return value.
+    - nilnil
+    # Error wrapping scheme violations (errors.As/Is misuse).
+    - errorlint
+    # Prohibits inline errors.New/fmt.Errorf; requires package-level sentinel vars.
+    - err113
+    # Naked type assertions — library uses well-justified nolint suppressions.
+    - forcetypeassert
+    # Security: this library parses untrusted bytes from arbitrary image files.
+    - gosec
+    # Typed-nil error returns — *ConcreteError satisfying error but nil pointer
+    # silently passes err == nil at the call site.
+    - nilnesserr
+    # err = f(); err = g() where first result is never read; complements ineffassign.
+    - wastedassign
+    # Prevents reassignment of package-level dispatch tables from outside.
+    - reassign
+    # Prevents shadowing of predeclared identifiers (len, cap, error, etc.).
+    - predeclared
+    # Consistent receiver type within a type — prevents copy-semantic surprises.
+    - recvcheck
+    # Prevents duration * duration (produces Duration² — a nonsensical unit).
+    - durationcheck
+    # Detects dangerous Unicode bidi control characters (Trojan Source CVE-2021-42574).
+    - bidichk
+    # Validates //go: compiler directives; protects future //go:noinline annotations.
+    - gocheckcompilerdirectives
+
+    # ===========================================================================
+    # API QUALITY
+    # ===========================================================================
+
+    # Opinionated linter for exported symbols, naming, and code style.
+    - revive
+    # Requires errors from external packages to be wrapped.
+    - wrapcheck
+    # Correct spelling in exported identifiers and comments.
+    - misspell
+    # Comment sentences must end with a period.
+    - godot
+    # Error types named XxxError, sentinel errors named ErrXxx.
+    - errname
+    # Interface method parameters must be named — required for godoc readability.
+    - inamedparam
+    # All //nolint directives must name specific linters and carry an explanation.
+    - nolintlint
+    # Duplicate consecutive words in comments and strings ("the the", "is is").
+    - dupword
+    # Bans naked returns; max-func-lines: 0 means zero tolerance.
+    - nakedret
+    # Detects functions with deeply nested if/else blocks (threshold: 5).
+    - nestif
+    # ExampleXxx functions must have // Output: comments to run as tests.
+    - testableexamples
+    # Detects TODO/FIXME/HACK comments that should be resolved before merging.
+    - godox
+    # Top-level tests with t.Run subtests must call t.Parallel().
+    - paralleltest
+    # t.Run subtests must call t.Parallel() as their first statement.
+    - tparallel
+    # Test helper functions must call t.Helper() as first line.
+    - thelper
+    # All exported symbols must have conformant godoc comments.
+    - godoclint
+
+    # ===========================================================================
+    # COMPLEXITY BOUNDS
+    # ===========================================================================
+
+    # Functions over 80 lines or 60 statements must be justified with //nolint:funlen.
+    - funlen
+
+    # ===========================================================================
+    # PERFORMANCE
+    # ===========================================================================
+
+    # Slice and map pre-allocation.
+    - prealloc
+    # Unnecessary type conversions.
+    - unconvert
+    # fmt.Sprintf replaceable with faster zero-allocation alternatives.
+    - perfsprint
+    # make([]T, n) with non-zero length misuse.
+    - makezero
+    # Unused function parameters.
+    - unparam
+    # Multi-category diagnostics; performance tag enabled in settings.
+    - gocritic
+    # Cyclomatic complexity ≤ 10.
+    - gocyclo
+    # for i := 0; i < n; i++ → for i := range n where i is only a counter.
+    - intrange
+    # strings.HasPrefix(string(b),...) → bytes.HasPrefix(b,...) and similar.
+    - mirror
+
+    # ===========================================================================
+    # ENUM SAFETY
+    # ===========================================================================
+
+    # Exhaustiveness of switch on iota enums.
+    - exhaustive
+
+    # ===========================================================================
+    # PACKAGE STRUCTURE
+    # ===========================================================================
+
+    # Package-level var (sync.Pool globals carry documented nolint justifications).
+    - gochecknoglobals
+    # init() functions (tag registry in exif/tag.go is the one legitimate use).
+    - gochecknoinits
+    # Loop variable copy bugs (pre-Go 1.22 semantics).
+    - copyloopvar
+
+    # ===========================================================================
+    # MODERNIZATION
+    # ===========================================================================
+
+    # Go 1.26 idiom suggestions: min/max builtins, slices.Contains, clear(), etc.
+    - modernize
+    # Detects golang.org/x/exp functions promoted to stdlib (slices.*, maps.*).
+    - exptostd
+
+  settings:
+    # --- govet: enable shadow analyser ---
+    # Catches inner `err` shadowing outer `err` in chained binary-read functions.
+    govet:
+      enable:
+        - shadow
+
+    # --- revive: full rule set for a public API library ---
+    revive:
+      rules:
+        # Existing rules
+        - name: exported
+          severity: warning
+          arguments:
+            - checkPrivateReceivers
+            - sayRepetitiveInsteadOfStutters
+        - name: unexported-return
+          severity: warning
+        - name: error-return
+          severity: warning
+        - name: var-naming
+          severity: warning
+        # enforce `any` over `interface{}`
+        - name: use-any
+          severity: warning
+        # remove else after return/break
+        - name: superfluous-else
+          severity: warning
+        # catch defer-in-loop and incorrect capture anti-patterns
+        - name: defer
+          severity: warning
+        # consistent receiver variable names within a type
+        - name: receiver-naming
+          severity: warning
+        # names that differ only by case
+        - name: confusing-naming
+          severity: warning
+        # catch omitted logic in empty function bodies
+        - name: empty-block
+          severity: warning
+        # taking address of range value is almost always a bug
+        - name: range-val-address
+          severity: warning
+        # alias naming follows var-naming convention
+        - name: import-alias-naming
+          severity: warning
+        # context must be first param (proactive — fires nowhere currently)
+        - name: context-as-argument
+          severity: warning
+        # silent error discard; fmt.Fprint* are intentionally allowed
+        - name: unhandled-error
+          severity: warning
+          arguments:
+            - "fmt.Fprint"
+            - "fmt.Fprintf"
+            - "fmt.Fprintln"
+        # complement to forcetypeassert
+        - name: unchecked-type-assertion
+          severity: warning
+          arguments:
+            - acceptIgnoredAssertionResult: true
+
+    # --- exhaustive: enforce dispatch-table completeness ---
+    exhaustive:
+      default-signifies-exhaustive: true
+      # TagID has ~130 hex constants; switches are intentionally partial.
+      ignore-enum-types: "exif.TagID"
+
+    gocyclo:
+      min-complexity: 10
+
+    gosec:
+      excludes:
+        # G304 (file inclusion via variable) is expected: library opens
+        # caller-supplied image file paths by design.
+        - G304
+
+    # --- gocritic: diagnostic + performance tags ---
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+      disabled-checks:
+        # hugeParam: value-passing of IFDEntry in slice operations is intentional
+        # and benchmarked. Disabling avoids noise on proven-correct hot paths.
+        - hugeParam
+        # appendAssign: too noisy on idiomatic "out = append(out, ...)" patterns.
+        - appendAssign
+
+    # --- nakedret: zero tolerance ---
+    nakedret:
+      max-func-lines: 0
+
+    # --- godot: declaration comments only (doc comments for types, funcs, vars) ---
+    godot:
+      scope: declarations
+      period: true
+
+    # --- nolintlint: strict mode ---
+    nolintlint:
+      require-specific: true
+      require-explanation: true
+      allow-no-explanation: []
+
+    # --- inamedparam: named params required even for single-param methods ---
+    inamedparam:
+      skip-single-param: false
+
+    # --- funlen: 80-line / 60-statement cap on non-test functions ---
+    funlen:
+      lines: 80
+      statements: 60
+      ignore-comments: true
+
+  exclusions:
+    rules:
+      # exif/tag.go: deliberately global read-only map + init() for tag registry.
+      - linters: [gochecknoglobals, gochecknoinits]
+        path: "exif/tag\\.go"
+
+      # internal/: owns its errors end-to-end; wrapping is circular.
+      - linters: [wrapcheck]
+        path: "internal/.*"
+
+      # test files: exhaustive switches pick cases under test deliberately.
+      - linters: [exhaustive]
+        path: "_test\\.go$"
+
+      # test functions: table-driven setup justifies high cyclomatic complexity.
+      - linters: [gocyclo]
+        path: "_test\\.go$"
+
+      # examples/: procedural main programs, complexity is irrelevant.
+      - linters: [gocyclo]
+        path: "^examples/"
+
+      # examples/ are standalone CLI main packages — library linters don't apply.
+      - linters: [gochecknoglobals, gochecknoinits, wrapcheck, errcheck, funlen]
+        path: "^examples/"
+
+      # thelper and testableexamples apply only to *_test.go, not main programs.
+      - linters: [thelper, testableexamples]
+        path: "^examples/"
+
+      # paralleltest/tparallel: examples/ are standalone CLI programs, not test files.
+      - linters: [paralleltest, tparallel]
+        path: "^examples/"
+
+      # godoclint: internal/ packages serve maintainers, not the public API.
+      - linters: [godoclint]
+        path: "internal/.*"
+
+      # godoclint: exif/tag.go is a tag registry; section-header comments within
+      # const blocks are standard practice and not intended as godoc comments.
+      - linters: [godoclint]
+        path: "exif/tag\\.go"
+
+      # inamedparam: test mock interfaces don't need named params.
+      - linters: [inamedparam]
+        path: "_test\\.go$"
+
+      # govet shadow: `err` shadowing in table-driven test closures is idiomatic.
+      - linters: [govet]
+        path: "_test\\.go$"
+        text: "declaration of .err. shadows"
+
+      # predeclared: `len:` in struct literal fields in table tests is fine.
+      - linters: [predeclared]
+        path: "_test\\.go$"
+
+      # dupword: intentional repetition in test case names is acceptable.
+      - linters: [dupword]
+        path: "_test\\.go$"
+
+      # gocritic: commentedOutCode fires on annotation comments in table-driven tests.
+      - linters: [gocritic]
+        path: "_test\\.go$"
+        text: "commentedOutCode"
+
+      # gocritic: filepathJoin fires when paths already contain OS separators but
+      # filepath.Join handles them correctly on all platforms.
+      - linters: [gocritic]
+        path: "_test\\.go$"
+        text: "filepathJoin"
+
+      # gocritic: builtinShadowDecl: fuzz test helpers that pre-date Go 1.21 min/max
+      # builtins must keep their local declarations to stay compatible.
+      - linters: [gocritic]
+        path: "fuzz_test\\.go$"
+        text: "builtinShadowDecl"
+
+      # modernize: test clarity takes priority over modernization.
+      - linters: [modernize]
+        path: "_test\\.go$"
+
+      # recvcheck: test doubles may legitimately mix receiver types.
+      - linters: [recvcheck]
+        path: "_test\\.go$"
+
+      # nolintlint: fuzz boilerplate doesn't need per-instance explanations.
+      - linters: [nolintlint]
+        path: "fuzz_test\\.go$"
+
+      # err113: table-driven tests routinely use inline errors.New for expected values.
+      - linters: [err113]
+        path: "_test\\.go$"
+
+      # godot: test file comments are implementation notes, not API documentation.
+      - linters: [godot]
+        path: "_test\\.go$"
+
+      # nestif: deep setup logic in test helpers is acceptable.
+      - linters: [nestif]
+        path: "_test\\.go$"
+
+      # funlen: test functions are inherently long (setup, act, assert, subtests).
+      - linters: [funlen]
+        path: "_test\\.go$"
+
+formatters:
+  enable:
+    # Enforces canonical Go formatting and applies simplifications (gofmt -s).
+    - gofmt
+    # Import group ordering: stdlib → external → github.com/FlavioCFOliveira prefix.
+    - gci
+  settings:
+    gofmt:
+      simplify: true
+    # --- gci: import group ordering ---
+    # Group 1: standard library
+    # Group 2: external (everything not in stdlib or this module)
+    # Group 3: this module (github.com/FlavioCFOliveira prefix)
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/FlavioCFOliveira)
